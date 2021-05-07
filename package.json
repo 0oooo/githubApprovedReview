@@ -1,0 +1,16 @@
+{
+  "name": "github_api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "test.js",
+  "dependencies": {
+    "@octokit/core": "^3.4.0",
+    "axios": "^0.21.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Camille Croci",
+  "license": "ISC"
+}
