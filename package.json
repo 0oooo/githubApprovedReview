@@ -5,7 +5,8 @@
   "main": "test.js",
   "dependencies": {
     "@octokit/core": "^3.4.0",
-    "axios": "^0.21.1"
+    "axios": "^0.21.1",
+    "dotenv": "^9.0.1"
   },
   "devDependencies": {},
   "scripts": {

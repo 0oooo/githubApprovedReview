@@ -1,14 +1,17 @@
+//Axios will handle HTTP requests to web service
 const axios = require('axios'); 
+//Reads keys from .env file
+const dotenv = require('dotenv');
+//Copy variables in file into environment variables
+dotenv.config();
 
 const API_BASE_URL = 'https://api.github.com/repos';
 
-const DEFAULT_OWNER = '/nodejs'; 
-const DEFAULT_REPOS = '/node'
-const PULL = '/pulls' ;
-const PAGE = '?per_page='
+const PULL =  '/pulls';
 const REVIEWS = '/reviews';
+const CLIENT = '?my_client_id=';
+const PAGE = '&&per_page='
 
-const DEFAULT_NUMBER_OF_REQUESTS = 10; 
 
 const histogramData = {
     lessThanHour: 0, 
@@ -16,8 +19,8 @@ const histogramData = {
     moreThanDay: 0, 
 }
 
-const getApprovedReviewDate = async (pullNumber) => {
-    const url = API_BASE_URL + DEFAULT_OWNER + DEFAULT_REPOS + PULL + "/" +  pullNumber + REVIEWS;
+const getApprovedReviewDate = async (baseUrl, pullNumber) => {   
+    const url = baseUrl + "/" +  pullNumber + REVIEWS + CLIENT + process.env.GITHUB_USERNAME;
     let date = null; 
     try {
         const response = await axios.get(url);
@@ -48,21 +51,25 @@ const compareDate = (createdDate, reviewDate) => {
     if(diffTime < 60) histogramData.lessThanHour++; 
     else if ((diffTime / 60) < 24 ) histogramData.betweenHourAndDay++; 
     else histogramData.moreThanDay++; 
-    
-    console.log(histogramData);
+
 }
 
-const run = async () => {
-    const url = API_BASE_URL 
-                + DEFAULT_OWNER 
-                + DEFAULT_REPOS 
-                + PULL 
-                + PAGE 
-                + DEFAULT_NUMBER_OF_REQUESTS; 
+// const testCompareDate = () => {
+//     const date1 = "2021-05-05T09:23:20Z"; 
+//     const date2 = "2021-05-06T09:30:26Z"; 
+
+//     compareDate(date1, date2);
+// }
+
+// testCompareDate(); 
+
+const getHistogramData = async (  ) => {
+    const baseUrl = API_BASE_URL + process.env.DEFAULT_OWNER + process.env.DEFAULT_REPOS + PULL 
+    const getRequestsUrl = baseUrl + CLIENT + process.env.GITHUB_USERNAME + PAGE + process.env.DEFAULT_NUMBER_OF_REQUESTS; 
     let results = null; 
     
     try {
-        const response = await axios.get(url);
+        const response = await axios.get(getRequestsUrl);
         console.log(response.status);
 
         if (response.status === 200) {
@@ -71,17 +78,25 @@ const run = async () => {
             results.forEach( async (result) => {
                 const pullNumber = result.number; 
                 const createdDate = result.created_at; 
-                const reviewDate = await getApprovedReviewDate(pullNumber);
-                if(createdDate && reviewDate) compareDate(createdDate, reviewDate)
-                //If there is no review, should we not add it to the histogram or should we add it to more than a day ? or should we check the current date and the created date ? 
-            });
+                const reviewDate = await getApprovedReviewDate(baseUrl, pullNumber);
+                if(createdDate && reviewDate) compareDate(createdDate, reviewDate); 
+                console.log("For each" , histogramData);
+            })
+            
         }
     } catch (error) {
         console.error(error);
-        // console.log("Attempt url was ", url);
+        console.log("Attempt url was ", getRequestsUrl);
     }
-
     return results; 
 }
 
-run().then(() => console.log("Done.")); 
+const run =  async () => {
+    try {
+       await getHistogramData().then(() => console.log("final ", histogramData));  
+    }catch (error) {
+        console.error(error);
+    }
+}
+
+run(); 
