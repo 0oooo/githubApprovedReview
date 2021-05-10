@@ -6,13 +6,12 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const API_BASE_URL = 'https://api.github.com/repos';
-
 const PULL =  '/pulls';
 const REVIEWS = '/reviews';
 const CLIENT = '?my_client_id=';
 const PAGE = '&&per_page='
 
-
+// Final histogram that we fill and return 
 const histogramData = {
     lessThanHour: 0, 
     betweenHourAndDay: 0, 
@@ -39,7 +38,6 @@ const getApprovedReviewDate = async (baseUrl, pullNumber) => {
         console.error(error);
         console.log("Attempt url was ", url);
     }
-
     return date; 
 }
 
@@ -52,15 +50,6 @@ const compareDate = (createdDate, reviewDate) => {
     else if ((diffTime / 60) < 24 ) histogramData.betweenHourAndDay++; 
     else histogramData.moreThanDay++; 
 }
-
-// const testCompareDate = () => {
-//     const date1 = "2021-05-05T09:23:20Z"; 
-//     const date2 = "2021-05-06T09:30:26Z"; 
-
-//     compareDate(date1, date2);
-// }
-
-// testCompareDate(); 
 
 const getHistogramData = async (  ) => {
     const baseUrl = API_BASE_URL + process.env.DEFAULT_OWNER + process.env.DEFAULT_REPOS + PULL 
