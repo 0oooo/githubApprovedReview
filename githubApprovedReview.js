@@ -51,7 +51,6 @@ const compareDate = (createdDate, reviewDate) => {
     if(diffTime < 60) histogramData.lessThanHour++; 
     else if ((diffTime / 60) < 24 ) histogramData.betweenHourAndDay++; 
     else histogramData.moreThanDay++; 
-
 }
 
 // const testCompareDate = () => {
@@ -74,26 +73,25 @@ const getHistogramData = async (  ) => {
 
         if (response.status === 200) {
             results = response.data; 
-          
-            results.forEach( async (result) => {
-                const pullNumber = result.number; 
-                const createdDate = result.created_at; 
+            if(!results) return; 
+            
+            for (let i= 0; i < results.length; i++){
+                const pullNumber = results[i].number; 
+                const createdDate = results[i].created_at; 
                 const reviewDate = await getApprovedReviewDate(baseUrl, pullNumber);
                 if(createdDate && reviewDate) compareDate(createdDate, reviewDate); 
-                console.log("For each" , histogramData);
-            })
-            
+            }
+
         }
     } catch (error) {
         console.error(error);
         console.log("Attempt url was ", getRequestsUrl);
     }
-    return results; 
 }
 
 const run =  async () => {
     try {
-       await getHistogramData().then(() => console.log("final ", histogramData));  
+       await getHistogramData().then(() => {console.log("Result = ", histogramData)});  
     }catch (error) {
         console.error(error);
     }
